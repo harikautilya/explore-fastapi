@@ -18,11 +18,22 @@
         },
         {
             "name": "Pytest",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/venv/bin/pytest",
             "args": [
                 "${workspaceFolder}/tests"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Pytest current file",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/venv/bin/pytest",
+            "args": [
+                "${file}"
             ],
             "console": "integratedTerminal",
             "justMyCode": false
