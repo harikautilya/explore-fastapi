@@ -15,6 +15,17 @@
             ],
             "jinja": true,
             "justMyCode": false
+        },
+        {
+            "name": "Pytest",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/venv/bin/pytest",
+            "args": [
+                "${workspaceFolder}/tests"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ]
 }
