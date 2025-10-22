@@ -5,16 +5,16 @@ from dataclasses import dataclass
 
 # fake class to test the funcitonalites of copy
 @dataclass(repr=True, frozen=True, kw_only=True, eq=True)
-class InnerSampleModel(CoreModel):
+class InnerSampleModelFake(CoreModel):
     data_str: str
 
 
 # fake class to test the funcitonalites of copy
 @dataclass(repr=True, frozen=True, kw_only=True, eq=True)
-class SampleModel(CoreModel):
+class SampleModelFake(CoreModel):
     data_str: str
     data_int: int
-    data_inner_model: InnerSampleModel
+    data_inner_model: InnerSampleModelFake
 
 
 model_data = [
@@ -26,10 +26,10 @@ model_data = [
                 "data_str": "inner sample",
             },
         },
-        SampleModel(
+        SampleModelFake(
             data_str="Sample",
             data_int=1,
-            data_inner_model=InnerSampleModel(data_str="inner sample"),
+            data_inner_model=InnerSampleModelFake(data_str="inner sample"),
         ),
     ),
     (
@@ -40,43 +40,43 @@ model_data = [
                 "data_str": "inner sample",
             },
         },
-        SampleModel(
+        SampleModelFake(
             data_str="3@$#&*&~!)@",
             data_int=-1,
-            data_inner_model=InnerSampleModel(data_str="inner sample"),
+            data_inner_model=InnerSampleModelFake(data_str="inner sample"),
         ),
     ),
 ]
 
 model_copy_data = [
     (
-        SampleModel(
+        SampleModelFake(
             data_str="Sample",
             data_int=1,
-            data_inner_model=InnerSampleModel(data_str="inner sample"),
+            data_inner_model=InnerSampleModelFake(data_str="inner sample"),
         ),
         {
             "data_str": "Changed",
         },
-        SampleModel(
+        SampleModelFake(
             data_str="Changed",
             data_int=1,
-            data_inner_model=InnerSampleModel(data_str="inner sample"),
+            data_inner_model=InnerSampleModelFake(data_str="inner sample"),
         ),
     ),
     (
-        SampleModel(
+        SampleModelFake(
             data_str="Sample",
             data_int=-1,
-            data_inner_model=InnerSampleModel(data_str="inner sample"),
+            data_inner_model=InnerSampleModelFake(data_str="inner sample"),
         ),
         {
             "data_int": -10,
         },
-        SampleModel(
+        SampleModelFake(
             data_str="Sample",
             data_int=-10,
-            data_inner_model=InnerSampleModel(data_str="inner sample"),
+            data_inner_model=InnerSampleModelFake(data_str="inner sample"),
         ),
     ),
 ]
@@ -85,17 +85,17 @@ model_copy_data = [
 @pytest.mark.parametrize("model_data, expected", model_data)
 def test_model_create(
     model_data: dict[str, any],
-    expected: SampleModel,
+    expected: SampleModelFake,
 ):
-    created_model = SampleModel(**model_data)
+    created_model = SampleModelFake(**model_data)
     assert created_model == expected
 
 
 @pytest.mark.parametrize("model_data, changes, update_model_data", model_copy_data)
 def test_model_copy(
-    model_data: SampleModel,
+    model_data: SampleModelFake,
     changes: dict[str, any],
-    update_model_data: SampleModel,
+    update_model_data: SampleModelFake,
 ):
     update_model = model_data.copy(**changes)
     assert update_model == update_model_data
