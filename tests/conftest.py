@@ -12,6 +12,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+DUMMY_TEST_TOKEN = "testtoken"
+
 
 @pytest.fixture
 def inmemory_db_session() -> Generator[Session, Any, Any]:
@@ -38,6 +40,7 @@ def inmemory_db_session() -> Generator[Session, Any, Any]:
     session = SessionLocal()
     try:
         setup_dummy_user(session)
+        setup_token(session)
         yield session
     finally:
         session.close()
@@ -51,3 +54,19 @@ def setup_dummy_user(session):
     dummy_user = User(username="testuser", name="test", password="password")
     session.add(dummy_user)
     session.commit()
+
+
+def setup_token(inmemory_db_session):
+    """Create a token row for the dummy user and return the token string.
+
+    Tests can use this token value when they need a valid authentication token
+    stored in the database. The dummy user created by `setup_dummy_user`
+    has id 1 in these tests.
+    """
+    from api.db.user import Token
+
+    token_value = DUMMY_TEST_TOKEN
+    token_row = Token(user_id=1, token=token_value, last_used="now")
+    inmemory_db_session.add(token_row)
+    inmemory_db_session.commit()
+    return token_value

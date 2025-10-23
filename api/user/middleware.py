@@ -38,7 +38,7 @@ class Authentication(BaseHTTPMiddleware):
             if bool(ignore_paths[path] & {"*", method}):
                 response = await call_next(request)
                 return response
-        print(path)
+
 
         # Read the path for the rest of the endpoints
         auth_header = request.headers.get("Authorization")
