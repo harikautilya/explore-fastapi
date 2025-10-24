@@ -12,6 +12,7 @@ from api import note, user
 from api.db.base import get_db_session, Base
 
 
+
 DUMMY_TEST_TOKEN = "testtoken"
 DUMMY_TEST_TOKEN2 = "testtoken2"
 
@@ -25,11 +26,13 @@ async def inmemory_db_session() -> AsyncGenerator[AsyncSession, Any]:
     async def setup_dummy_user(session: AsyncSession):
         # Create a dummy user
         from api.db.user import User
-
-        dummy_user = User(username="testuser", name="test", password="password")
+        from api.user.utils.encrpty import encrpty_string
+        psww = await encrpty_string("password")
+        dummy_user = User(username="testuser", name="test", password=psww)
         session.add(dummy_user)
 
-        dummy_user2 = User(username="testuser2", name="test2", password="password2")
+        psww = await encrpty_string("password2")
+        dummy_user2 = User(username="testuser2", name="test2", password=psww)
         session.add(dummy_user2)
 
         await session.commit()
@@ -104,5 +107,6 @@ def test_app(inmemory_db_session) -> FastAPI:
     app.dependency_overrides[get_db_session] = get_modified_db
     # Modified middleware
     app.add_middleware(Authentication, db_session=get_modified_db)
-
-    return app
+    main_app = FastAPI()
+    main_app.mount("/api", app)
+    return main_app

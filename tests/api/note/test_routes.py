@@ -33,7 +33,7 @@ async def test_create_note_routes(
         # create
         payload = {"title": "T", "content": "C"}
 
-        resp = client.post("/notes/", json=payload, headers=test_request["headers"])
+        resp = client.post("/api/notes/", json=payload, headers=test_request["headers"])
         assert resp.status_code == 201
 
         # ensure response body exists and has expected fields
@@ -57,7 +57,7 @@ async def test_update_note_route(
         # create
         payload = {"title": "T", "content": "C"}
         # Create a sample note
-        resp = client.post("/notes/", json=payload, headers=test_request["headers"])
+        resp = client.post("/api/notes/", json=payload, headers=test_request["headers"])
         assert resp.status_code == 201
 
         # Get id from response
@@ -67,21 +67,21 @@ async def test_update_note_route(
         # Full note change
         payload = {"title": "T2", "content": "C2"}
         resp = client.put(
-            f"/notes/{note_id}", json=payload, headers=test_request["headers"]
+            f"/api/notes/{note_id}", json=payload, headers=test_request["headers"]
         )
         assert resp.status_code == 200
 
         # Title note change, parital update not allowed
         payload = {"title": "T3"}
         resp = client.put(
-            f"/notes/{note_id}", json=payload, headers=test_request["headers"]
+            f"/api/notes/{note_id}", json=payload, headers=test_request["headers"]
         )
         assert resp.status_code == 422
 
         # Title note change, parital update not allowed
         payload = {"content": "C3"}
         resp = client.put(
-            f"/notes/{note_id}", json=payload, headers=test_request["headers"]
+            f"/api/notes/{note_id}", json=payload, headers=test_request["headers"]
         )
         assert resp.status_code == 422
 
@@ -98,7 +98,7 @@ async def test_delete_note_route(
         # create
         payload = {"title": "T", "content": "C"}
         # Create a sample note
-        resp = client.post("/notes/", json=payload, headers=test_request["headers"])
+        resp = client.post("/api/notes/", json=payload, headers=test_request["headers"])
         assert resp.status_code == 201
 
         # Get id from response
@@ -106,7 +106,7 @@ async def test_delete_note_route(
         note_id = data.get("id")
 
         # Note delete
-        resp = client.delete(f"/notes/{note_id}", headers=test_request["headers"])
+        resp = client.delete(f"/api/notes/{note_id}", headers=test_request["headers"])
         assert resp.status_code == 204
 
 
@@ -126,7 +126,7 @@ async def test_get_note_routes(
         
         # create for user 1
         payload = {"title": "T", "content": "C"}
-        resp = client.post("/notes/", json=payload, headers=test_request["headers"])
+        resp = client.post("/api/notes/", json=payload, headers=test_request["headers"])
         assert resp.status_code == 201
         data = resp.json()
         note_id = data.get("id")
@@ -137,7 +137,7 @@ async def test_get_note_routes(
 
 
         payload = {"title": "T2", "content": "C2"}
-        resp = client.post("/notes/", json=payload, headers=test_request["headers"])
+        resp = client.post("/api/notes/", json=payload, headers=test_request["headers"])
         assert resp.status_code == 201
         data = resp.json()
         note_id = data.get("id")
@@ -149,7 +149,7 @@ async def test_get_note_routes(
 
         # create for user 2
         payload = {"title": "T2_other", "content": "C2_other"}
-        resp = client.post("/notes/", json=payload, headers=test_request_two["headers"])
+        resp = client.post("/api/notes/", json=payload, headers=test_request_two["headers"])
         assert resp.status_code == 201
         data = resp.json()
         note_id = data.get("id")
@@ -159,7 +159,7 @@ async def test_get_note_routes(
         })
 
         # Read for user 1 and check if user 2 data is present
-        resp = client.get("/notes",  headers=test_request["headers"])
+        resp = client.get("/api/notes",  headers=test_request["headers"])
         assert resp.status_code == 200
         data = resp.json()
         
@@ -168,7 +168,7 @@ async def test_get_note_routes(
 
 
         # Read for user 2 and check if user 1 data is present
-        resp = client.get("/notes",  headers=test_request_two["headers"])
+        resp = client.get("/api/notes",  headers=test_request_two["headers"])
         assert resp.status_code == 200
         data = resp.json()
 
