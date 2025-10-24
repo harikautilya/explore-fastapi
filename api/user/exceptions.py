@@ -40,3 +40,11 @@ def handle_missing_header_exception(request: Request, exc: HTTPException):
             "message" : str(exc)
         }
     )
+
+def handle_auth_token_exception(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={
+            "message" : str(exc)
+        }
+    )

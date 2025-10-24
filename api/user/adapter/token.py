@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from ..models import TokenModel, UserModel
 from api.db.user import Token
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import insert, select
 from datetime import datetime
 
@@ -28,7 +28,7 @@ class TokenAdapter(ABC):
 
 class TokenDbAdpater(TokenAdapter):
 
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         self.db = db
 
     async def store_token(self, token: TokenModel) -> bool:
@@ -37,12 +37,13 @@ class TokenDbAdpater(TokenAdapter):
             token=token.token,
             last_used=datetime.now(),
         )
-        result = self.db.execute(statement=statement)
+        result = await self.db.execute(statement=statement)
         return True
 
     async def get_user(self, token: TokenModel) -> TokenModel:
         statement = select(Token.user_id).filter(Token.token==token.token)
-        result = self.db.execute(statement=statement).first()
+        execute_result  = await self.db.execute(statement=statement)
+        result= execute_result.first()
         if not result:
             return None
         token_updated_with_user = token.copy(

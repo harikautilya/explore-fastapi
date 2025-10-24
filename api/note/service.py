@@ -18,7 +18,10 @@ class NoteService:
         self.note_adapter = note_adapter
 
     async def create_note(
-        self, title: str, content: str, user_id: int
+        self,
+        title: str,
+        content: str,
+        user_id: int,
     ) -> NoteModel | None:
         """
         Create a new note.
@@ -33,7 +36,11 @@ class NoteService:
         return await self.note_adapter.delete_note(note_id=note_id, user_id=user_id)
 
     async def update_note(
-        self, note_id: int, title: str, content: str, user_id: int
+        self,
+        note_id: int,
+        title: str,
+        content: str,
+        user_id: int,
     ) -> NoteModel | None:
         """
         Update an existing note.

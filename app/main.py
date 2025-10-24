@@ -23,6 +23,8 @@ def init_api_app():
     api_app = FastAPI()
     
     user.register_router(api_app)
+    user.setup_excepttion_handling(api_app)
+    user.setup_middleware(api_app)
     note.register_router(api_app)
     # open_api_schema = api_app.openapi()
     # Doc update to include the auth header
