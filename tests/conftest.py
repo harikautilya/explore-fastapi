@@ -1,72 +1,108 @@
 import sys
 from pathlib import Path
+import pytest_asyncio
 import pytest
+from typing import Generator, Any, Dict, AsyncGenerator
+from fastapi import FastAPI
 from sqlalchemy import create_engine, event
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.engine import Engine
-from typing import Generator, Any
 
+from api import note, user
+from api.db.base import get_db_session, Base
 
-# Ensure project root is on sys.path so tests can import the `api` package
-REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
 
 DUMMY_TEST_TOKEN = "testtoken"
+DUMMY_TEST_TOKEN2 = "testtoken2"
+
+DUMMY_USER_ID = 1
+DUMMY_USER_ID2 = 1
 
 
-@pytest.fixture
-def inmemory_db_session() -> Generator[Session, Any, Any]:
-    from api.db.base import Base
-    """Create a reusable in-memory SQLite SQLAlchemy Session for tests.
+@pytest_asyncio.fixture
+async def inmemory_db_session() -> AsyncGenerator[AsyncSession, Any]:
 
-    Yields a SQLAlchemy Session that has created metadata for the project's
+    async def setup_dummy_user(session: AsyncSession):
+        # Create a dummy user
+        from api.db.user import User
+
+        dummy_user = User(username="testuser", name="test", password="password")
+        session.add(dummy_user)
+
+        dummy_user2 = User(username="testuser2", name="test2", password="password2")
+        session.add(dummy_user2)
+
+        await session.commit()
+
+    async def setup_token(inmemory_db_session: AsyncSession):
+        """Create token rows for the dummy users and commit them."""
+        from api.db.user import Token
+
+        token_value = DUMMY_TEST_TOKEN
+        token_row = Token(user_id=1, token=token_value, last_used="now")
+        inmemory_db_session.add(token_row)
+
+        token_value2 = DUMMY_TEST_TOKEN2
+        token_row2 = Token(user_id=2, token=token_value2, last_used="now")
+        inmemory_db_session.add(token_row2)
+
+        await inmemory_db_session.commit()
+        return token_value
+
+    """Create a reusable in-memory SQLite SQLAlchemy AsyncSession for tests.
+
+    Yields a SQLAlchemy AsyncSession that has created metadata for the project's
     models. The caller is responsible for committing/rolling back any
     changes in the test.
     """
 
-    engine = create_engine("sqlite:///:memory:")
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:")
 
     # Event listener to enable foreign keys for each new connection
-    @event.listens_for(Engine, "connect")
+    @event.listens_for(engine.sync_engine, "connect")
     def set_sqlite_pragma(dbapi_connection, connection_record):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
 
-    Base.metadata.create_all(engine)
-    SessionLocal = sessionmaker(bind=engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    SessionLocal = async_sessionmaker(bind=engine)
 
     session = SessionLocal()
     try:
-        setup_dummy_user(session)
-        setup_token(session)
+        await setup_dummy_user(session)
+        await setup_token(session)
         yield session
     finally:
-        session.close()
+        await session.close()
 
 
-
-def setup_dummy_user(session):
-    # Create a dummy user
-    from api.db.user import User
-
-    dummy_user = User(username="testuser", name="test", password="password")
-    session.add(dummy_user)
-    session.commit()
+@pytest.fixture
+def test_request() -> Dict[str, dict]:
+    return {"headers": {"Authorization": f"Bearer {DUMMY_TEST_TOKEN}"}}
 
 
-def setup_token(inmemory_db_session):
-    """Create a token row for the dummy user and return the token string.
+@pytest.fixture
+def test_request_two() -> Dict[str, dict]:
+    return {"headers": {"Authorization": f"Bearer {DUMMY_TEST_TOKEN2}"}}
 
-    Tests can use this token value when they need a valid authentication token
-    stored in the database. The dummy user created by `setup_dummy_user`
-    has id 1 in these tests.
-    """
-    from api.db.user import Token
 
-    token_value = DUMMY_TEST_TOKEN
-    token_row = Token(user_id=1, token=token_value, last_used="now")
-    inmemory_db_session.add(token_row)
-    inmemory_db_session.commit()
-    return token_value
+@pytest.fixture
+def test_app(inmemory_db_session) -> FastAPI:
+    from api.user.middleware import Authentication
+    app = FastAPI()
+    note.register_router(app=app)
+    user.register_router(app=app)
+    user.setup_excepttion_handling(app=app)
+   
+
+    async def get_modified_db():
+        yield inmemory_db_session
+
+    app.dependency_overrides[get_db_session] = get_modified_db
+    # Modified middleware
+    app.add_middleware(Authentication, db_session=get_modified_db)
+
+    return app

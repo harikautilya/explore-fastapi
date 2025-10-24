@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import insert, delete, update, select
 from api.db.note import Note
 from .models import NoteModel
@@ -44,7 +44,7 @@ class NoteDbAdapter(NoteAdapter):
     Database-backed implementation of the NoteAdapter.
     """
 
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         self.db_session = db
 
     async def create_note(self, note: NoteModel) -> NoteModel | None:
@@ -53,8 +53,8 @@ class NoteDbAdapter(NoteAdapter):
             .values(title=note.title, content=note.content, user_id=note.user_id)
             .returning(Note.id)
         )
-        result = self.db_session.execute(statement).scalar_one_or_none()
-        self.db_session.commit()
+        execute_result = await self.db_session.execute(statement)
+        result = execute_result.scalar_one_or_none()
         if result:
             return NoteModel(
                 id=result,
@@ -66,7 +66,7 @@ class NoteDbAdapter(NoteAdapter):
 
     async def delete_note(self, note_id: int, user_id: int) -> bool:
         statement = delete(Note).where(Note.id == note_id, Note.user_id == user_id)
-        result = self.db_session.execute(statement)
+        result = await self.db_session.execute(statement)
         return result.rowcount > 0
 
     async def update_note(self, note: NoteModel) -> NoteModel | None:
@@ -76,14 +76,16 @@ class NoteDbAdapter(NoteAdapter):
             .values(title=note.title, content=note.content)
             .returning(Note.id)
         )
-        result = self.db_session.execute(statement).scalar_one_or_none()
+        execute_result = await self.db_session.execute(statement)
+        result = execute_result.scalar_one_or_none()
         if result:
             return note
         return None
 
     async def get_notes_by_user_id(self, user_id: int) -> list[NoteModel]:
         statement = select(Note).where(Note.user_id == user_id)
-        results = self.db_session.execute(statement).scalars().all()
+        execute_result = await self.db_session.execute(statement)
+        results = execute_result.scalars().all()
         return [
             NoteModel(
                 id=note.id,

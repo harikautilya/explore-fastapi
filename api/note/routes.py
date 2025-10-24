@@ -14,6 +14,12 @@ router = APIRouter(
 )
 
 
+class NoteGetResponse(BaseModel):
+    id: int
+    title: str
+    content: str
+
+
 class NoteUpdateRequest(BaseModel):
     title: str
     content: str
@@ -34,11 +40,11 @@ class NoteCreateResponse(BaseModel):
     content: str
 
 
-@router.get("/", response_model=List[NoteUpdateResponse])
+@router.get("/", response_model=List[NoteGetResponse])
 async def get_notes(
     request: Request,
     note_service: Annotated[NoteService, Depends(get_note_service)],
-):
+) -> List[NoteGetResponse]:
     """
     API end point to get all the notes for the user
     """

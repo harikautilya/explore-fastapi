@@ -6,19 +6,20 @@ from .adapter import TokenAdapter
 from .adapter.token import TokenDbAdpater
 from .models import TokenModel
 from .exceptions import MissingHeaderException, InvalidAuthToken
-from api.db.base import get_db_session
+
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 
 class Authentication(BaseHTTPMiddleware):
 
-    def __init__(self, app, dispatch=None):
+    def __init__(self, app, db_session, dispatch=None):
         super().__init__(app, dispatch)
+        self.db_session = db_session
 
     @asynccontextmanager
     async def _getTokenAdapter(self) -> AsyncGenerator[TokenAdapter, None]:
-        async for db_session in get_db_session():
+        async for db_session in self.db_session():
             token_adapter: TokenAdapter = TokenDbAdpater(db=db_session)
             yield token_adapter
 
@@ -38,7 +39,6 @@ class Authentication(BaseHTTPMiddleware):
             if bool(ignore_paths[path] & {"*", method}):
                 response = await call_next(request)
                 return response
-
 
         # Read the path for the rest of the endpoints
         auth_header = request.headers.get("Authorization")

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from ..models import CredentailsModel, UserModel, TokenModel
 from api.db.user import User, Token
 from ..utils.encrpty import encrpty_string
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, insert, update
 
 
@@ -43,7 +43,7 @@ class UserDbAdapter(UserAdapter):
     User Adapter based on db as source
     """
 
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         self.db_session = db
 
     async def get_user_by_creds(self, creds: CredentailsModel) -> UserModel | None:
@@ -55,14 +55,16 @@ class UserDbAdapter(UserAdapter):
         )
 
         # Ideally we would also search if the size is more than 1 but i am omitting here
-        result = self.db_session.execute(statement=statment).first()
+        excute_statment = await self.db_session.execute(statement=statment)
+        result = excute_statment.first()
         if result is None:
             return None
         return UserModel(id=result[0], username=result[2], name=result[1])
 
     async def get_user_by_id(self, id: int) -> UserModel:
         statement = select(User.id, User.name).filter(User.id == id)
-        result = self.db_session.execute(statement=statement).first()
+        execute_result = await self.db_session.execute(statement=statement)
+        result = execute_result.first()
         return UserModel(id=id, name=result[1], username="")
 
     async def store_user(self, user: UserModel, password: str) -> bool:
@@ -72,5 +74,5 @@ class UserDbAdapter(UserAdapter):
             password=input_password_encrpty,
             name=user.name,
         )
-        result = self.db_session.execute(statement=statement)
+        result = await self.db_session.execute(statement=statement)
         return True
