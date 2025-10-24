@@ -58,8 +58,6 @@ async def test_get_user_returns_user(
     expected_user_id: int,
 ):
     adapter = TokenDbAdpater(db=inmemory_db_session)
-
-    # insert token row directly with the expected user id
     await adapter.store_token(query_token_model)
 
     returned = await adapter.get_user(token=query_token_model)

@@ -56,11 +56,6 @@ async def test_get_user_by_creds_success(
 ):
     adapter = UserDbAdapter(db=inmemory_db_session)
 
-    # store a user by inserting directly using the same encrypt function flow as adapter
-    # The adapter uses encrpty_string to hash the password; reuse that to produce the same hash
-    from api.user.utils.encrpty import encrpty_string
-
-    hashed = await encrpty_string(pre_password_plain)
     result = await adapter.store_user(user=user_model, password=pre_password_plain)
 
     returned = await adapter.get_user_by_creds(creds=creds)
