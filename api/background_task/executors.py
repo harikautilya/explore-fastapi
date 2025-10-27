@@ -2,11 +2,16 @@ from concurrent.futures import ThreadPoolExecutor
 from .task import Task
 from typing import List
 from multiprocessing.pool import Pool as PoolType
+from abc import ABC, abstractmethod
 
-class Executor:
+
+class Executor(ABC):
+    
+    @abstractmethod
     def run(self, tasks: List[Task]):
         pass
 
+    @abstractmethod
     def stop(self):
         pass
 
@@ -46,6 +51,7 @@ class SequentailExecutor(Executor):
 
     def stop(self):
         self.threadPoolExecutor.shutdown(wait=True)
+
 
 class ParrallelExecutor(Executor):
     pool: PoolType

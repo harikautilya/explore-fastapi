@@ -69,3 +69,27 @@ def test_parrellel():
     execution_time = t_stop - t_start
 
     assert execution_time < 10 * 0.2
+
+
+def test_append_concurrent():
+    from concurrent.futures import ThreadPoolExecutor
+
+    thread_pool = ThreadPoolExecutor(max_workers=5)
+    exec = ConcurrentExecutor(threadPoolExecutor=thread_pool)
+    manager = Manager(executor=exec)
+
+    for i in range(0, 10):
+        manager.submit(Sample(run_number=i))
+
+    t_start = time.time()
+    manager.start()
+    # append some more tasks
+    for i in range(0, 10):
+        manager.submit(Sample(run_number=i))
+    manager.start()
+    manager.stop()
+    t_stop = time.time()
+
+    execution_time = t_stop - t_start
+
+    assert execution_time < 10 * 0.2
