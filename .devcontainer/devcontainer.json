@@ -13,7 +13,8 @@
             "extensions": [
                 "ms-python.python",
                 "ms-python.vscode-pylance",
-                "tamasfe.even-better-toml"
+                "tamasfe.even-better-toml",
+                "ms-python.black-formatter"
             ],
             "settings": {
                 "files.exclude": {
