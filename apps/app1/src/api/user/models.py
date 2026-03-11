@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from api.core.model import CoreModel
+from commons.core.model import CoreModel
 
 @dataclass(repr=True, frozen=True,kw_only=True, eq=True)
 class CredentailsModel(CoreModel):

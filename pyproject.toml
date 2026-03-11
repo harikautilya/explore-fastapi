@@ -1,0 +1,13 @@
+[project]
+name = "explore-fastapi"
+version = "0.1.0"
+description = "This is an example project to explore python monorepo"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+start-app1 = "apps.app1.src.app1.main"
+
+[tool.uv.workspace]
+members = ["packages/*", "apps/*"]

@@ -1,5 +1,19 @@
 # FAST API Learning
 
+## Mono repo support
+
+Exploring UV as monorepo manager
+
+```
+uv init --package path/name # Create a package under path
+uc sync --package name 
+uv add -r req.txt --package shared 
+uv export --package app1 --no-dev --no-hashes -o app1-reqs.txt # Export a req.txt file
+uv run --package app1 alembic -c apps/app1/alembic.ini upgrade head # upgrade alembic db
+uv run --package app1 start # start application
+```
+
+
 ## Feature
 
 1. Create user : This will be contolled using the command line interface
@@ -30,3 +44,5 @@ alembic -c alembic/alembic.ini upgrade head
 ```
 pytest --cov=api
 ```
+
+

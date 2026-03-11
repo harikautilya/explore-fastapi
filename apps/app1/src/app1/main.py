@@ -2,7 +2,7 @@ import uvicorn
 
 from fastapi.security import HTTPBearer
 from fastapi import FastAPI
-from app.docs import custom_openapi
+from app1.docs import custom_openapi
 
 from api import user, note
 
@@ -34,6 +34,9 @@ def init_api_app():
 
 app = init_main_app()
 app.mount("/api", init_api_app())
+def start():
+    # Crucial: Use the full module path so uvicorn can reload from root
+    uvicorn.run("app1.main:app", host="0.0.0.0", port=8000, reload=True)
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    start()

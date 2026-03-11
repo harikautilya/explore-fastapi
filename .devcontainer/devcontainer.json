@@ -1,0 +1,27 @@
+{
+    "name": "Fastapi monorepo",
+    "dockerFile": "Dockerfile",
+    "workspaceFolder": "/workspaces/explore-fastapi",
+    "appPort": [
+        8000
+    ],
+    "mounts": [
+        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "tamasfe.even-better-toml"
+            ],
+            "settings": {
+                "files.exclude": {
+                    "**/__pycache__": true,
+                    "**/*.pyc": true,
+                    ".venv": true
+                }
+            }
+        }
+    }
+}

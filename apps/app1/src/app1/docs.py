@@ -1,4 +1,3 @@
-from fastapi.openapi.models import APIKey, APIKeyIn, SecuritySchemeType
 from fastapi.openapi.utils import get_openapi
 from fastapi import FastAPI
 
