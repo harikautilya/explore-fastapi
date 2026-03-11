@@ -2,9 +2,9 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.user.adapter.user import UserDbAdapter
-from api.user.models import CredentailsModel, UserModel
-from api.db.user import User
+from app1.app1user.adapter.user import UserDbAdapter
+from app1.app1user.models import CredentailsModel, UserModel
+from app1.api.db.user import User
 
 
 DUMMY_USER_ID = 1

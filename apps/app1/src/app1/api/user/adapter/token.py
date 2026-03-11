@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from ..models import TokenModel, UserModel
-from api.db.user import Token
+from app1.api.db.user import Token
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import insert, select
 from datetime import datetime

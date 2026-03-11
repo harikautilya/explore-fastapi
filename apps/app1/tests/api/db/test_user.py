@@ -1,6 +1,6 @@
 
 import pytest
-from api.db.user import User, Token
+from app1.api.db.user import User, Token
 
 
 user_data = [

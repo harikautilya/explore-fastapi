@@ -2,8 +2,8 @@ import asyncio
 from unittest.mock import MagicMock, AsyncMock
 import pytest
 
-from api.note.service import NoteService
-from api.note.models import NoteModel
+from app1.app1note.service import NoteService
+from app1.app1note.models import NoteModel
 
 
 DUMMY_USER_ID = 1

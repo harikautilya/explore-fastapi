@@ -1,5 +1,5 @@
 import pytest
-from api.note.models import NoteModel
+from app1.app1note.models import NoteModel
 from dataclasses import FrozenInstanceError
 
 

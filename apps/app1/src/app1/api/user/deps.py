@@ -4,7 +4,7 @@ from fastapi import Depends
 from .service import TokenService, UserService
 from .adapter import UserAdapter, TokenAdapter
 
-from api.db.base import get_db_session
+from app1.api.db.base import get_db_session
 
 
 def get_user_adapter(

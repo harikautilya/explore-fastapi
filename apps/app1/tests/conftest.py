@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 from sqlalchemy.engine import Engine
 
 from api import note, user
-from api.db.base import get_db_session, Base
+from app1.api.db.base import get_db_session, Base
 
 
 
@@ -25,8 +25,8 @@ async def inmemory_db_session() -> AsyncGenerator[AsyncSession, Any]:
 
     async def setup_dummy_user(session: AsyncSession):
         # Create a dummy user
-        from api.db.user import User
-        from api.user.utils.encrpty import encrpty_string
+        from app1.api.db.user import User
+        from app1.app1user.utils.encrpty import encrpty_string
         psww = await encrpty_string("password")
         dummy_user = User(username="testuser", name="test", password=psww)
         session.add(dummy_user)
@@ -39,7 +39,7 @@ async def inmemory_db_session() -> AsyncGenerator[AsyncSession, Any]:
 
     async def setup_token(inmemory_db_session: AsyncSession):
         """Create token rows for the dummy users and commit them."""
-        from api.db.user import Token
+        from app1.api.db.user import Token
 
         token_value = DUMMY_TEST_TOKEN
         token_row = Token(user_id=1, token=token_value, last_used="now")
@@ -94,7 +94,7 @@ def test_request_two() -> Dict[str, dict]:
 
 @pytest.fixture
 def test_app(inmemory_db_session) -> FastAPI:
-    from api.user.middleware import Authentication
+    from app1.app1user.middleware import Authentication
     app = FastAPI()
     note.register_router(app=app)
     user.register_router(app=app)

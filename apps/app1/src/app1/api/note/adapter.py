@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import insert, delete, update, select
-from api.db.note import Note
+from app1.api.db.note import Note
 from .models import NoteModel
 
 

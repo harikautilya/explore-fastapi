@@ -1,6 +1,6 @@
-from api.background_task.managers import Manager
-from api.background_task.executors import ConcurrentExecutor, SequentailExecutor, ParrallelExecutor
-from api.background_task.task import Task
+from app1.app1background_task.managers import Manager
+from app1.app1background_task.executors import ConcurrentExecutor, SequentailExecutor, ParrallelExecutor
+from app1.app1background_task.task import Task
 import time
 
 

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from ..models import CredentailsModel, UserModel, TokenModel
-from api.db.user import User, Token
+from app1.api.db.user import User, Token
 from ..utils.encrpty import encrpty_string
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, insert, update

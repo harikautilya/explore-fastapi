@@ -15,7 +15,7 @@ def setup_middleware(app: FastAPI):
     """
     Register middleware
     """
-    from api.db.base import get_db_session
+    from app1.api.db.base import get_db_session
     from .middleware import Authentication
 
     app.add_middleware(Authentication, db_session=get_db_session)

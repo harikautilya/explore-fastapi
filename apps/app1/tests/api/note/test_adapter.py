@@ -1,8 +1,8 @@
 import asyncio
 import pytest
-from api.db.note import Note
-from api.note.models import NoteModel
-from api.note.adapter import NoteDbAdapter
+from app1.api.db.note import Note
+from app1.app1note.models import NoteModel
+from app1.app1note.adapter import NoteDbAdapter
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 import asyncio

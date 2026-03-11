@@ -2,9 +2,9 @@ import asyncio
 from unittest.mock import MagicMock, AsyncMock
 import pytest
 
-from api.user.service.token import TokenService
-from api.user.models import UserModel
-from api.user.exceptions import InvalidCredentialsException
+from app1.app1user.service.token import TokenService
+from app1.app1user.models import UserModel
+from app1.app1user.exceptions import InvalidCredentialsException
 
 
 @pytest.fixture

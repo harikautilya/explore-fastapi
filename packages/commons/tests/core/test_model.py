@@ -1,5 +1,5 @@
 import pytest
-from api.core.model import CoreModel
+from app1.app1core.model import CoreModel
 from dataclasses import dataclass
 
 

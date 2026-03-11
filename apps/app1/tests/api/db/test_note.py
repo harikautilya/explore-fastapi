@@ -2,7 +2,7 @@ import sqlalchemy
 import pytest
 
 
-from api.db.note import Note, NoteHistory
+from app1.api.db.note import Note, NoteHistory
 
 
 note_data = [

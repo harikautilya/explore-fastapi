@@ -1,4 +1,4 @@
-from api.core.singleton import Singleton
+from app1.app1core.singleton import Singleton
 
 class SingletonFake(Singleton):
     pass

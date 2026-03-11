@@ -3,9 +3,9 @@ from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Dict
 import pytest
-from api.note.deps import get_note_service
-from api.note.adapter import NoteDbAdapter
-from api.note.service import NoteService
+from app1.app1note.deps import get_note_service
+from app1.app1note.adapter import NoteDbAdapter
+from app1.app1note.service import NoteService
 from utils.lists import compare
 
 def _overide_deps(app: FastAPI, inmemory_db_session: AsyncSession) -> FastAPI:

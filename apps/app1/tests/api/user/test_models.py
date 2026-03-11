@@ -1,7 +1,7 @@
 import pytest
 from dataclasses import FrozenInstanceError
 
-from api.user.models import UserModel, CredentailsModel, TokenModel
+from app1.app1user.models import UserModel, CredentailsModel, TokenModel
 
 
 def test_user_model():

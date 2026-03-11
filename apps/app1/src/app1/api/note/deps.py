@@ -4,7 +4,7 @@ from fastapi import Depends
 from .service import NoteService
 from .adapter import NoteAdapter, NoteDbAdapter
 
-from api.db.base import get_db_session
+from app1.api.db.base import get_db_session
 
 
 def get_note_adapter(

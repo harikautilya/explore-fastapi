@@ -2,9 +2,9 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.user.adapter.token import TokenDbAdpater
-from api.user.models import TokenModel, UserModel
-from api.db.user import Token
+from app1.app1user.adapter.token import TokenDbAdpater
+from app1.app1user.models import TokenModel, UserModel
+from app1.api.db.user import Token
 
 
 DUMMY_USER_ID = 1

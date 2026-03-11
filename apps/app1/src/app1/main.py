@@ -4,7 +4,7 @@ from fastapi.security import HTTPBearer
 from fastapi import FastAPI
 from app1.docs import custom_openapi
 
-from api import user, note
+from app1.api import user, note
 
 
 def init_main_app():
