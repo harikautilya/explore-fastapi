@@ -9,12 +9,20 @@
             "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/bin/python",
             "args": [
-                "app.main:app",
-                "--reload"
+                "app1.main:app",
+                "--reload",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8000"
             ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}:${workspaceFolder}/apps/app1" // Add both root and app folder to path
+            },
             "jinja": true,
-            "justMyCode": false
         },
         {
             "name": "Pytest",

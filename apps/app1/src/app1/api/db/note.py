@@ -7,7 +7,7 @@ from .base import Base
 
 
 
-@dataclass(repr=True)
+
 class Note(Base):
     """
     The model class for the notes
@@ -25,7 +25,7 @@ class Note(Base):
     histories : Mapped[List["NoteHistory"]]  = relationship(back_populates="note")
 
 
-@dataclass(repr=True)
+
 class NoteHistory(Base):
     """
     The model class for the history of note changes

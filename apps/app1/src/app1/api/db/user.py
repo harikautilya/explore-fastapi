@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
 from .note import Note
 
-@dataclass(repr=True)
+
 class User(Base):
     """
     This is the model class for the user table.
@@ -23,7 +23,7 @@ class User(Base):
     notes: Mapped[List["Note"]] = relationship(back_populates="user")
 
 
-@dataclass(repr=True)
+
 class Token(Base):
     """
     This is the model class to maintain token provided to the user.

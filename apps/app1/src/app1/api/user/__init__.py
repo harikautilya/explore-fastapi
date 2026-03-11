@@ -17,8 +17,16 @@ def setup_middleware(app: FastAPI):
     """
     from app1.api.db.base import get_db_session
     from .middleware import Authentication
+    from app1.api.db.session import AsyncSessionManagedDB
+    from app1.api.db.user import Token
+    from app1.api.db.base import SessionLocal
 
-    app.add_middleware(Authentication, db_session=get_db_session)
+    session = AsyncSessionManagedDB[Token, int](
+        session_manager=SessionLocal,
+        model_class=Token,
+    )
+
+    app.add_middleware(Authentication, db_session=session)
 
 
 def setup_excepttion_handling(app: FastAPI):
@@ -36,5 +44,3 @@ def setup_excepttion_handling(app: FastAPI):
     app.add_exception_handler(
         InvalidCredentialsException, handle_invalid_creds_exception
     )
-
-

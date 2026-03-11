@@ -17,11 +17,9 @@ class Authentication(BaseHTTPMiddleware):
         super().__init__(app, dispatch)
         self.db_session = db_session
 
-    @asynccontextmanager
-    async def _getTokenAdapter(self) -> AsyncGenerator[TokenAdapter, None]:
-        async for db_session in self.db_session():
-            token_adapter: TokenAdapter = TokenDbAdpater(db=db_session)
-            yield token_adapter
+   
+    def _getTokenAdapter(self) -> TokenDbAdpater:
+        return TokenDbAdpater(db=self.db_session)
 
     # since dependecies are something that are resolved
     async def dispatch(self, request, call_next) -> Response:
@@ -48,13 +46,14 @@ class Authentication(BaseHTTPMiddleware):
         token = auth_header.split(" ")[1]
 
         # Read if the token  is correct or not
-        async with self._getTokenAdapter() as token_adapter:
-            token = await token_adapter.get_user(
-                token=TokenModel(token=token, user=None)
-            )
-            if token is None:
-                raise InvalidAuthToken()
-            request.state.token = token
+        token_adapter = self._getTokenAdapter() 
+      
+        token = await token_adapter.get_user(
+            token=TokenModel(token=token, user=None)
+        )
+        if token is None:
+            raise InvalidAuthToken()
+        request.state.token = token
 
         response = await call_next(request)
         return response

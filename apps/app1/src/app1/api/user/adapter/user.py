@@ -5,7 +5,7 @@ from ..utils.encrpty import encrpty_string
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, insert, update
 
-
+from app1.api.db.session import AsyncSessionManagedDB
 class UserAdapter(ABC):
     """
     A Sample user adapter for the purpose to reading and writing data to

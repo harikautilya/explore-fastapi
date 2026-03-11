@@ -2,11 +2,13 @@ from .base import SessionLocal
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic, Type, List, Optional
 from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.ext.asyncio import  async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 from sqlalchemy import insert as insert_sql
 from sqlalchemy import delete as delete_sql
 from sqlalchemy import update as update_sql
 from sqlalchemy import select as select_sql
+from sqlalchemy import inspect
+from sqlalchemy.orm import selectinload
 from .base import Base
 
 T = TypeVar("T", bound=Base)
@@ -27,7 +29,7 @@ class DBOperations(ABC, Generic[T, K]):
         pass
 
     @abstractmethod
-    def delete(self, model: T):
+    def delete(self, model: T) -> bool:
         pass
 
     @abstractmethod
@@ -73,13 +75,14 @@ class SessionManagedDB(DBOperations[T, K]):
             session.execute(stmt)
             session.commit()
 
-    def delete(self, model: T):
+    def delete(self, model: T) -> bool:
         with self.session_manager() as session:
             stmt = delete_sql(self.model_class).where(
                 getattr(self.model_class, "id") == getattr(model, "id")
             )
-            session.execute(stmt)
+            result = session.execute(stmt)
             session.commit()
+            return result.rowcount > 0
 
     def get(self, id: K) -> Optional[T]:
         with self.session_manager() as session:
@@ -109,36 +112,59 @@ class AsyncSessionManagedDB(DBOperations[T, K]):
         self.model_class = model_class
         self.session_manager = session_manager
 
+        self._eager_loads = [
+            getattr(self.model_class, r.key)
+            for r in inspect(self.model_class).relationships
+        ]
+
     async def insert(self, model: T):
+        id = -1
         values = {
             c.key: getattr(model, c.key)
             for c in model.__table__.columns
             if getattr(model, c.key) is not None
         }
-        statement = insert_sql(self.model_class).values(**values)
+        pk_column = getattr(self.model_class, "id")
+        statement = insert_sql(self.model_class).values(**values).returning(pk_column)
         async with self.session_manager() as session:
-            await session.execute(statement=statement)
+            result = await session.execute(statement=statement)
+            id = result.scalar()
             await session.commit()
-        return model
+        return id
 
-    async def update(self, model: T, **kwargs):
+    async def update(self, model: T):
         async with self.session_manager() as session:
             # Use the ID from the model instance to target the row
+            update_data = {
+                c.key: getattr(model, c.key)
+                for c in self.model_class.__table__.columns
+                if c.key != "id"
+            }
             stmt = (
                 update_sql(self.model_class)
                 .where(getattr(self.model_class, "id") == getattr(model, "id"))
-                .values(**kwargs)
+                .values(**update_data)
             )
-            await session.execute(stmt)
+            result = await session.execute(stmt)
             await session.commit()
 
-    async def delete(self, model: T):
+            if result.rowcount == 0:
+                raise Exception("Updated operation failed")
+        return model
+        
+
+    async def delete(self, **kwargs) -> bool:
         async with self.session_manager() as session:
-            stmt = delete_sql(self.model_class).where(
-                getattr(self.model_class, "id") == getattr(model, "id")
-            )
-            await session.execute(stmt)
-            await session.commit()
+                stmt = delete_sql(self.model_class)
+                
+                # Convert dictionary to SQL expressions
+                for key, value in kwargs.items():
+                    column = getattr(self.model_class, key)
+                    stmt = stmt.where(column == value)
+
+                result = await session.execute(stmt)
+                await session.commit()
+                return result.rowcount > 0
 
     async def get(self, id: K) -> Optional[T]:
         async with self.session_manager() as session:
@@ -153,5 +179,13 @@ class AsyncSessionManagedDB(DBOperations[T, K]):
     async def filter(self, **kwargs) -> List[T]:
         async with self.session_manager() as session:
             stmt = select_sql(self.model_class).filter_by(**kwargs)
+
             result = await session.execute(stmt)
             return list(result.scalars().all())
+
+    # def _apply_eager_loading(self, stmt):
+    #     """Automatically attaches selectinload for all relationships."""
+    #     print("Here ==========>", [r.key for r in inspect(self.model_class).relationships])
+    #     if self._eager_loads:
+    #         return stmt.options(*[selectinload(prop) for prop in self._eager_loads])
+    #     return stmt

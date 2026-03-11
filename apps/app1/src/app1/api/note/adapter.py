@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import insert, delete, update, select
 from app1.api.db.note import Note
 from .models import NoteModel
+from app1.api.db.session import AsyncSessionManagedDB
 
 
 class NoteAdapter(ABC):
@@ -44,17 +43,12 @@ class NoteDbAdapter(NoteAdapter):
     Database-backed implementation of the NoteAdapter.
     """
 
-    def __init__(self, db: AsyncSession):
+    def __init__(self, db: AsyncSessionManagedDB):
         self.db_session = db
 
     async def create_note(self, note: NoteModel) -> NoteModel | None:
-        statement = (
-            insert(Note)
-            .values(title=note.title, content=note.content, user_id=note.user_id)
-            .returning(Note.id)
-        )
-        execute_result = await self.db_session.execute(statement)
-        result = execute_result.scalar_one_or_none()
+        note_db = Note(title=note.title, content=note.content, user_id=note.user_id)
+        result = await self.db_session.insert(note_db)
         if result:
             return NoteModel(
                 id=result,
@@ -65,27 +59,15 @@ class NoteDbAdapter(NoteAdapter):
         return None
 
     async def delete_note(self, note_id: int, user_id: int) -> bool:
-        statement = delete(Note).where(Note.id == note_id, Note.user_id == user_id)
-        result = await self.db_session.execute(statement)
-        return result.rowcount > 0
+        return await self.db_session.delete(id=note_id, user_id=user_id)
+
 
     async def update_note(self, note: NoteModel) -> NoteModel | None:
-        statement = (
-            update(Note)
-            .where(Note.id == note.id, Note.user_id == note.user_id)
-            .values(title=note.title, content=note.content)
-            .returning(Note.id)
-        )
-        execute_result = await self.db_session.execute(statement)
-        result = execute_result.scalar_one_or_none()
-        if result:
-            return note
-        return None
+        return  await self.db_session.update(note)
+
 
     async def get_notes_by_user_id(self, user_id: int) -> list[NoteModel]:
-        statement = select(Note).where(Note.user_id == user_id)
-        execute_result = await self.db_session.execute(statement)
-        results = execute_result.scalars().all()
+        results = await self.db_session.filter(user_id=user_id)
         return [
             NoteModel(
                 id=note.id,

@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 SQL_URL = "sqlite+aiosqlite:///sample.db"
 
 # Create async engine
-engine = create_async_engine(SQL_URL, echo=True)
+engine = create_async_engine(SQL_URL, echo=False)
 
 # Create async sessionmaker
 SessionLocal = async_sessionmaker(engine, expire_on_commit=False)

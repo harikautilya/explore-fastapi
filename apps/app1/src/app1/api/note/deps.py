@@ -1,19 +1,19 @@
-from typing import Annotated
+from typing import Annotated, Any
 from fastapi import Depends
 
 from .service import NoteService
 from .adapter import NoteAdapter, NoteDbAdapter
+from app1.api.db.base import SessionLocal
+from app1.api.db.session import AsyncSessionManagedDB
+from app1.api.db.note import Note
 
-from app1.api.db.base import get_db_session
 
-
-def get_note_adapter(
-    db_session: Annotated[any, Depends(get_db_session)],
-) -> NoteAdapter:
+def get_note_adapter() -> NoteAdapter:
     """
     Returns a database-backed implementation of the NoteAdapter.
     """
-    return NoteDbAdapter(db=db_session)
+    session  = AsyncSessionManagedDB[Note, int](session_manager=SessionLocal, model_class=Note)
+    return NoteDbAdapter(db=session)
 
 
 async def get_note_service(
